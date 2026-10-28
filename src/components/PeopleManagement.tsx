@@ -34,19 +34,10 @@ interface PeopleManagementProps {
   courses: Course[];
   schedules?: ScheduleSlot[];
   onAddStudent: (student: Student) => void;
-  onEnrollStudent: (enrollment: {
-    studentId: string;
-    courseId: string;
-    teacherId: string;
-    roomId: string;
-    modality: EnrollmentModality;
-    dayOfWeek: number;
-    startTime: string;
-    endTime: string;
-    monthlyFee: number;
-    dueDay: number;
-    newStudentData?: Student;
-  }) => void;
+  onEnrollStudent: (enrollment: any) => void;
+  onAddTeacher?: (teacher: Teacher) => void;
+  onAddRoom?: (room: Room) => void;
+  onAddCourse?: (course: Course) => void;
 }
 
 // Utilitários de formatação e máscara
@@ -92,6 +83,30 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [enrollMode, setEnrollMode] = useState<'NEW_STUDENT' | 'EXISTING_STUDENT'>('NEW_STUDENT');
   const [selectedStudentForEnroll, setSelectedStudentForEnroll] = useState<Student | null>(null);
+
+  // Estados para modais extras
+const [isTeacherModalOpen, setIsTeacherModalOpen] = useState(false);
+const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
+const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+
+// Form Professor
+const [tName, setTName] = useState('');
+const [tEmail, setTEmail] = useState('');
+const [tPhone, setTPhone] = useState('');
+const [tInstruments, setTInstruments] = useState('');
+const [tModel, setTModel] = useState<'HOURLY' | 'PERCENTAGE' | 'FIXED'>('HOURLY');
+const [tRate, setTRate] = useState(60);
+
+// Form Sala
+const [rName, setRName] = useState('');
+const [rCapacity, setRCapacity] = useState(1);
+const [rDescription, setRDescription] = useState('');
+
+// Form Curso
+const [cName, setCName] = useState('');
+const [cCategory, setCCategory] = useState<'INSTRUMENT' | 'VOCAL' | 'THEORY' | 'PRACTICE'>('INSTRUMENT');
+const [cDuration, setCDuration] = useState(60);
+const [cMonthlyFee, setCMonthlyFee] = useState(350);
 
   // Mensagem de feedback interna do modal
   const [modalFeedback, setModalFeedback] = useState<string | null>(null);
@@ -330,6 +345,46 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({
             className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-amber-500/25 active:scale-95 cursor-pointer"
             title="Cadastrar novo aluno ou matricular aluno existente"
           >
+            <div className="flex flex-wrap items-center gap-2">
+  {/* Botão Nova Matrícula */}
+  <button
+    onClick={() => {
+      setEnrollMode('NEW_STUDENT');
+      setIsEnrollModalOpen(true);
+    }}
+    className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+  >
+    <UserPlus className="w-4 h-4" />
+    <span>Nova Matrícula</span>
+  </button>
+
+  {/* Botão Novo Professor */}
+  <button
+    onClick={() => setIsTeacherModalOpen(true)}
+    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+  >
+    <PlusCircle className="w-3.5 h-3.5 text-amber-400" />
+    <span>+ Professor</span>
+  </button>
+
+  {/* Botão Nova Sala */}
+  <button
+    onClick={() => setIsRoomModalOpen(true)}
+    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+  >
+    <PlusCircle className="w-3.5 h-3.5 text-blue-400" />
+    <span>+ Sala</span>
+  </button>
+
+  {/* Botão Novo Curso */}
+  <button
+    onClick={() => setIsCourseModalOpen(true)}
+    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
+  >
+    <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
+    <span>+ Curso</span>
+  </button>
+</div>
             <UserPlus className="w-4 h-4" />
             <span>Nova Matrícula</span>
           </button>
@@ -1178,6 +1233,180 @@ export const PeopleManagement: React.FC<PeopleManagementProps> = ({
                     </span>
                   </button>
                 </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* MODAL CADASTRAR PROFESSOR */}
+      {isTeacherModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onClick={() => setIsTeacherModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-base font-bold text-slate-100 mb-1 flex items-center gap-2">
+              <UserPlus className="w-4 h-4 text-amber-400" /> Cadastrar Novo Professor
+            </h2>
+            <p className="text-xs text-slate-400 mb-4">Insira os dados do instrutor e modelo de remuneração.</p>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              onAddTeacher?.({
+                id: `prof-${Date.now()}`,
+                name: tName,
+                email: tEmail,
+                phone: tPhone,
+                instruments: tInstruments.split(',').map((s) => s.trim()).filter(Boolean),
+                contractModel: tModel,
+                hourlyRate: tModel === 'HOURLY' ? tRate : 0,
+                commissionPercentage: tModel === 'PERCENTAGE' ? tRate : 0,
+                fixedSalary: tModel === 'FIXED' ? tRate : 0,
+                paysOnStudentJustifiedAbsence: true,
+              });
+              setIsTeacherModalOpen(false);
+              setTName(''); setTEmail(''); setTPhone(''); setTInstruments('');
+            }} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Nome Completo</label>
+                <input type="text" value={tName} onChange={(e) => setTName(e.target.value)} required placeholder="Ex: Lucas Silva" className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Telefone / WhatsApp</label>
+                  <input type="text" value={tPhone} onChange={(e) => setTPhone(e.target.value)} placeholder="(62) 99999-9999" className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Email</label>
+                  <input type="email" value={tEmail} onChange={(e) => setTEmail(e.target.value)} placeholder="prof@escola.com" className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Instrumentos (separados por vírgula)</label>
+                <input type="text" value={tInstruments} onChange={(e) => setTInstruments(e.target.value)} required placeholder="Ex: Violão, Guitarra, Bateria" className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Modelo de Contrato</label>
+                  <select value={tModel} onChange={(e: any) => setTModel(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200">
+                    <option value="HOURLY">Horista (Hora/Aula)</option>
+                    <option value="PERCENTAGE">% da Mensalidade</option>
+                    <option value="FIXED">Salário Fixo</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">
+                    {tModel === 'HOURLY' ? 'Valor Hora (R$)' : tModel === 'PERCENTAGE' ? '% Comissão' : 'Salário Fixo (R$)'}
+                  </label>
+                  <input type="number" value={tRate} onChange={(e) => setTRate(Number(e.target.value))} required className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 font-bold" />
+                </div>
+              </div>
+              <div className="pt-2 flex justify-end gap-2">
+                <button type="button" onClick={() => setIsTeacherModalOpen(false)} className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white">Cancelar</button>
+                <button type="submit" className="px-4 py-1.5 rounded-lg bg-amber-500 font-bold text-slate-950">Cadastrar Professor</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CADASTRAR SALA */}
+      {isRoomModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onClick={() => setIsRoomModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-base font-bold text-slate-100 mb-1 flex items-center gap-2">
+              <DoorClosed className="w-4 h-4 text-blue-400" /> Cadastrar Sala Física
+            </h2>
+            <p className="text-xs text-slate-400 mb-4">Adicione uma sala à estrutura da escola.</p>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              onAddRoom?.({
+                id: `room-${Date.now()}`,
+                name: rName,
+                capacity: rCapacity,
+                description: rDescription,
+                availableInstruments: ['Geral'],
+                color: '#3b82f6',
+              });
+              setIsRoomModalOpen(false);
+              setRName(''); setRDescription('');
+            }} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Nome da Sala</label>
+                <input type="text" value={rName} onChange={(e) => setRName(e.target.value)} required placeholder="Ex: Sala 04 - Bateria & Percussão" className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+              </div>
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Capacidade de Alunos</label>
+                <input type="number" min={1} value={rCapacity} onChange={(e) => setRCapacity(Number(e.target.value))} required className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+              </div>
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Descrição / Equipamentos</label>
+                <input type="text" value={rDescription} onChange={(e) => setRDescription(e.target.value)} placeholder="Ex: Ar-condicionado, bateria eletrónica" className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+              </div>
+              <div className="pt-2 flex justify-end gap-2">
+                <button type="button" onClick={() => setIsRoomModalOpen(false)} className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white">Cancelar</button>
+                <button type="submit" className="px-4 py-1.5 rounded-lg bg-blue-500 font-bold text-white">Salvar Sala</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CADASTRAR CURSO */}
+      {isCourseModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onClick={() => setIsCourseModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-base font-bold text-slate-100 mb-1 flex items-center gap-2">
+              <Music className="w-4 h-4 text-emerald-400" /> Cadastrar Curso / Modalidade
+            </h2>
+            <p className="text-xs text-slate-400 mb-4">Adicione um novo curso ao catálogo pedagógico.</p>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              onAddCourse?.({
+                id: `course-${Date.now()}`,
+                name: cName,
+                category: cCategory,
+                defaultDurationMinutes: cDuration,
+                monthlyFee: cMonthlyFee,
+                description: `Curso completo de ${cName}`,
+              });
+              setIsCourseModalOpen(false);
+              setCName('');
+            }} className="space-y-3 text-xs">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Nome do Curso</label>
+                <input type="text" value={cName} onChange={(e) => setCName(e.target.value)} required placeholder="Ex: Teclado & Prática de Conjunto" className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Categoria</label>
+                  <select value={cCategory} onChange={(e: any) => setCCategory(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200">
+                    <option value="INSTRUMENT">Instrumento</option>
+                    <option value="VOCAL">Vocal / Canto</option>
+                    <option value="THEORY">Teoria Musical</option>
+                    <option value="PRACTICE">Prática em Grupo</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Duração Padrão (min)</label>
+                  <input type="number" value={cDuration} onChange={(e) => setCDuration(Number(e.target.value))} required className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Mensalidade Base Sugerida (R$)</label>
+                <input type="number" value={cMonthlyFee} onChange={(e) => setCMonthlyFee(Number(e.target.value))} required className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-slate-200 font-bold" />
+              </div>
+              <div className="pt-2 flex justify-end gap-2">
+                <button type="button" onClick={() => setIsCourseModalOpen(false)} className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white">Cancelar</button>
+                <button type="submit" className="px-4 py-1.5 rounded-lg bg-emerald-500 font-bold text-slate-950">Cadastrar Curso</button>
               </div>
             </form>
           </div>

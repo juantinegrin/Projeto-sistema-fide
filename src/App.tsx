@@ -24,9 +24,24 @@ export default function App() {
   const [userRole, setUserRole] = useState<UserViewRole>('ADMIN');
 
   // Application Domain State
-  const [rooms] = useState(initialRooms);
-  const [courses] = useState(initialCourses);
-  const [teachers] = useState(initialTeachers);
+  const [rooms, setRooms] = useState(initialRooms);
+const [courses, setCourses] = useState(initialCourses);
+const [teachers, setTeachers] = useState(initialTeachers);
+
+const handleAddTeacher = (newTeacher: Teacher) => {
+  setTeachers((prev) => [...prev, newTeacher]);
+  showToast(`Professor(a) ${newTeacher.name} cadastrado(a) com sucesso!`);
+};
+
+const handleAddRoom = (newRoom: Room) => {
+  setRooms((prev) => [...prev, newRoom]);
+  showToast(`Sala "${newRoom.name}" cadastrada com sucesso!`);
+};
+
+const handleAddCourse = (newCourse: Course) => {
+  setCourses((prev) => [...prev, newCourse]);
+  showToast(`Curso de "${newCourse.name}" adicionado com sucesso!`);
+};
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [schedules, setSchedules] = useState<ScheduleSlot[]>(initialSchedules);
   const [lessonNotes, setLessonNotes] = useState<LessonNote[]>(initialLessonNotes);
@@ -286,16 +301,19 @@ export default function App() {
         )}
 
         {activeTab === 'PEOPLE' && (
-          <PeopleManagement
-            students={students}
-            teachers={teachers}
-            rooms={rooms}
-            courses={courses}
-            schedules={schedules}
-            onAddStudent={(newStudent) => setStudents((prev) => [...prev, newStudent])}
-            onEnrollStudent={handleEnrollStudent}
-          />
-        )}
+  <PeopleManagement
+    students={students}
+    teachers={teachers}
+    rooms={rooms}
+    courses={courses}
+    schedules={schedules}
+    onAddStudent={(newStudent) => setStudents((prev) => [...prev, newStudent])}
+    onEnrollStudent={handleEnrollStudent}
+    onAddTeacher={handleAddTeacher}
+    onAddRoom={handleAddRoom}
+    onAddCourse={handleAddCourse}
+  />
+)}
 
         {activeTab === 'PEDAGOGICAL' && (
           <PedagogicalJournal
