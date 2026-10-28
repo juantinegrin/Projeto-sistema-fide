@@ -248,7 +248,7 @@ export default function App() {
   };
 
   const overdueInvoicesCount = invoices.filter((i) => i.status === 'OVERDUE').length;
-  const activeStudent = students.find((s) => s.id === activeStudentId) || students[0];
+  const activeStudent = students.find((s) => s.id === activeStudentId) || students[0] || null;
   const totalAvailableCredits = students.reduce((sum, s) => sum + s.makeupCredits, 0);
 
   return (
