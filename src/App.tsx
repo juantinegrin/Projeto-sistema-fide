@@ -317,18 +317,24 @@ export default function App() {
         )}
 
         {activeTab === 'STUDENT_PORTAL' && (
-          <StudentPortal
-            student={activeStudent}
-            allStudents={students}
-            onSelectStudent={setActiveStudentId}
-            schedules={schedules}
-            lessonNotes={lessonNotes}
-            invoices={invoices}
-            rooms={rooms}
-            onRequestMakeup={handleRequestMakeup}
-            onPayInvoicePix={(invId) => handleMarkInvoiceAsPaid(invId, 'PIX')}
-          />
-        )}
+  activeStudent ? (
+    <StudentPortal
+      student={activeStudent}
+      allStudents={students}
+      onSelectStudent={setActiveStudentId}
+      schedules={schedules}
+      lessonNotes={lessonNotes}
+      invoices={invoices}
+      rooms={rooms}
+      onRequestMakeup={handleRequestMakeup}
+      onPayInvoicePix={(invId) => handleMarkInvoiceAsPaid(invId, 'PIX')}
+    />
+  ) : (
+    <div className="p-8 text-center text-slate-400 bg-slate-900 rounded-2xl border border-slate-800">
+      Nenhum aluno cadastrado no momento. Cadastre seu primeiro aluno em &quot;Pessoas &amp; Matrículas&quot;.
+    </div>
+  )
+)}
 
         {activeTab === 'ARCHITECTURE' && <ArchitectureHub />}
       </main>
