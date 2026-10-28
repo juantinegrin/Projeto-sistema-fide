@@ -34,7 +34,7 @@ export default function App() {
   const [cashflow, setCashflow] = useState<CashflowTransaction[]>(initialCashflow);
 
   // Selected student for student portal
-  const [activeStudentId, setActiveStudentId] = useState<string>(initialStudents[0].id);
+  const [activeStudentId, setActiveStudentId] = useState<string>(initialStudents[0].id || '');
   // Feedback toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
