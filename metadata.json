@@ -1,0 +1,6 @@
+{
+  "name": "Sonata ERP - Gestão Escolar Musical",
+  "description": "Sistema integrado de gestão para escolas de música (estilo Emusys) com controle pedagógico, financeiro, grade horária com detecção de conflitos, portal do aluno e regras de negócio de repasse docente.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
